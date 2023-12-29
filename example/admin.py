@@ -5,3 +5,10 @@ from example.models import *
 
 admin.site.register(User)
 admin.site.register(City)
+admin.site.register(Category)
+admin.site.register(Media)
+admin.site.register(Song)
+admin.site.register(Book)
+admin.site.register(Movie)
+admin.site.register(Play)
+admin.site.register(Tvshow)
