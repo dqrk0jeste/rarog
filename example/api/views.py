@@ -43,7 +43,7 @@ def login(request):
             try:
             # Check the password 
                 ph = PasswordHasher()
-                ph.verify(user.password, serializer.data['password'])
+                ph.verify(user.password, serializer.data['password'] + user.salt)
                 return Response({'userId':user.userId}, status=status.HTTP_200_OK)
             except exceptions.VerifyMismatchError:
                 # Incorrect password
