@@ -42,7 +42,7 @@ def login(request):
             user = User.objects.get(username=serializer.data['username'])
             try:
             # Check the password 
-                ph = PasswordHasher()
+                ph = PasswordHasher(time_cost=2, memory_cost=65536, parallelism=4) # The parallelism optional argument should be set to the number of cores of the server CPU
                 ph.verify(user.password, serializer.data['password'])
                 return Response({'userId':user.userId}, status=status.HTTP_200_OK)
             except exceptions.VerifyMismatchError:
