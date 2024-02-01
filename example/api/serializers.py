@@ -1,6 +1,11 @@
 from rest_framework.serializers import ModelSerializer
-from example.models import City, User
+from example.models import City, User, Movie
 from argon2 import PasswordHasher
+
+class MovieSerializer(ModelSerializer):
+    class Meta:
+        model = Movie
+        fields = ['movieId', 'mediaId', 'director']
 
 class CitySerializer(ModelSerializer):
     class Meta:
@@ -14,7 +19,7 @@ class NewUserSerializer(ModelSerializer):
     
     # Modified create method which hashes the password
     def create(self, data):
-        ph = PasswordHasher()
+        ph = PasswordHasher(time_cost=2, memory_cost=65536, parallelism=4) # The parallelism optional argument should be set to the number of cores of the server CPU
         hashedPassword = ph.hash(data['password'])
         data['password'] = hashedPassword
         return User.objects.create(**data)

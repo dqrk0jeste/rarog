@@ -1,9 +1,22 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from example.models import City, User
-from .serializers import CitySerializer, NewUserSerializer, LoginSerializer
+from example.models import City, User, Movie, Media
+from .serializers import CitySerializer, NewUserSerializer, LoginSerializer, MovieSerializer
 from argon2 import PasswordHasher, exceptions
+
+# Handles GET requests to retrieve a list of movies
+# Returns a list of movies with keys: 'mediaId', 'movieId', 'name', 'director', 'genre', 'releaseYear'
+@api_view(['GET'])
+def getMovies(request):
+    queryset = Movie.objects.all()
+    serializer = MovieSerializer(queryset, many=True)
+    for movie in serializer.data:
+        media = Media.objects.get(mediaId=movie["mediaId"])
+        movie["name"] = media.name
+        movie["genre"] = media.genre
+        movie["releaseYear"] = media.releaseYear
+    return Response(serializer.data)
 
 # Handles GET requests to retrieve a list of cities
 # Returns a list of cities with keys: 'cityId', 'name'
@@ -42,7 +55,7 @@ def login(request):
             user = User.objects.get(username=serializer.data['username'])
             try:
             # Check the password 
-                ph = PasswordHasher()
+                ph = PasswordHasher(time_cost=2, memory_cost=65536, parallelism=4) # The parallelism optional argument should be set to the number of cores of the server CPU
                 ph.verify(user.password, serializer.data['password'])
                 return Response({'userId':user.userId}, status=status.HTTP_200_OK)
             except exceptions.VerifyMismatchError:
