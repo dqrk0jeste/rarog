@@ -1,5 +1,21 @@
 ﻿# Exposed endpoints
 List of endpoints exposed on https://rarog-django.vercel.app/api/
+
+## GET /movies
+Returns an array of movies in JSON
+```sh
+[
+	{
+		"mediaId": String,
+		"movieId": String,
+		"name": String,
+		"director": String,
+		"genre": String,
+		"releaseYear": Integer
+	}
+]
+```
+
 ## GET /cities
 Returns an array of cities in JSON
 ```sh

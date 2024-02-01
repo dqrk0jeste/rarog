@@ -1,9 +1,22 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from example.models import City, User
-from .serializers import CitySerializer, NewUserSerializer, LoginSerializer
+from example.models import City, User, Movie, Media
+from .serializers import CitySerializer, NewUserSerializer, LoginSerializer, MovieSerializer
 from argon2 import PasswordHasher, exceptions
+
+# Handles GET requests to retrieve a list of movies
+# Returns a list of movies with keys: 'mediaId', 'movieId', 'name', 'director', 'genre', 'releaseYear'
+@api_view(['GET'])
+def getMovies(request):
+    queryset = Movie.objects.all()
+    serializer = MovieSerializer(queryset, many=True)
+    for movie in serializer.data:
+        media = Media.objects.get(mediaId=movie["mediaId"])
+        movie["name"] = media.name
+        movie["genre"] = media.genre
+        movie["releaseYear"] = media.releaseYear
+    return Response(serializer.data)
 
 # Handles GET requests to retrieve a list of cities
 # Returns a list of cities with keys: 'cityId', 'name'
