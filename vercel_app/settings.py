@@ -30,10 +30,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True if os.environ.get('ENVIRONMENT') == 'dev' else False
 
-ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app']
-
+ALLOWED_HOSTS = [ '*' ] if os.environ.get('ENVIRONMENT') == 'dev' else [ '.vercel.app' ]
 
 # Application definition
 
@@ -61,9 +60,9 @@ MIDDLEWARE = [
 ]
 
 # Allow requests from frontend
-CORS_ALLOWED_ORIGINS = [
-    "https://filip841.github.io",
-]
+
+CORS_ALLOW_ALL_ORIGINS = True if os.environ.get('ENVIRONMENT') == 'dev' else False
+CORS_ALLOWED_ORIGINS = [ "https://filip841.github.io" ]
 
 ROOT_URLCONF = 'vercel_app.urls'
 
@@ -99,7 +98,7 @@ DATABASES = {
     'PORT': os.environ.get('DB_PORT'),
     'USER': os.environ.get('DB_USER'),
     'PASSWORD': os.environ.get('DB_PASSWORD'),
-    'OPTIONS': {'ssl': {'ca': os.environ.get('MYSQL_ATTR_SSL_CA')}} #uncomment this for production
+    'OPTIONS': {} if os.environ.get('ENVIRONMENT') == 'dev' else {'ssl': {'ca': os.environ.get('MYSQL_ATTR_SSL_CA')}}
   }
 }
 
