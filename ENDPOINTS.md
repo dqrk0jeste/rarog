@@ -1,6 +1,37 @@
 ﻿# Exposed endpoints
 List of endpoints exposed on https://rarog-django.vercel.app/api/
 
+
+
+## POST /
+Handles POST requests to get details on one movie.
+Requires a JSON body
+```sh
+{
+	"movieId": String,	
+}
+```
+If successful returns the JSON body with response status 201.
+```sh
+{
+	"mediaId": String,
+		"movieId": String,
+		"name": String,
+		"director": String,
+		"genre": String,
+		"releaseYear": Integer,
+		"cast": String,
+		"length": Integer,
+		"description": String,
+		"screenwriters": Srting
+}
+```
+
+
+In case of an error returns a response status 400 and a list with field names as keys and list of errors which occured on that field as values.
+
+
+
 ## GET /movies
 Returns an array of movies in JSON
 ```sh
@@ -11,7 +42,11 @@ Returns an array of movies in JSON
 		"name": String,
 		"director": String,
 		"genre": String,
-		"releaseYear": Integer
+		"releaseYear": Integer,
+		"cast": String,
+		"length": Integer,
+		"description": String,
+		"screenwriters": Srting
 	}
 ]
 ```
