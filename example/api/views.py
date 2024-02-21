@@ -89,7 +89,7 @@ movies = [
         "movieId": "ddab6633-bde5-46b4-ad94-d6e3a4706827",
         "director": "Peter Jackson",
         "cast": "	Cate Blanchett, Orlando Bloom, Billy Boyd, Bernard Hill, Ian Holm, Bruce Hopkins, Ian McKellen, Dominic Monaghan, Viggo Mortensen, John Noble, John Rhys-Davies, David Wenham, Elijah Wood",
-        "length": 131,
+        "length": 201,
         "description": "Gandalf and Aragorn lead the World of Men against Sauron's army to draw his gaze from Frodo and Sam as they approach Mount Doom with the One Ring.",
         "screenwriters": "Fran Walsh, Philippa Boyens, Peter Jackson"
         },
@@ -171,12 +171,11 @@ def getMovies(request):
 
 #Temporary version of getOneMovie api that works without connection to databese
 #Returns a movie with keys: 'movieId', 'mediaId', 'director', "name", "genre", "releaseYear", "cast", "length", "description", "screenwriters"
-@api_view(['POST'])
-def getOneMovie(request):
-    serializer = OneMovieSerializer(data=request.data)
-    if serializer.is_valid():
-        movie = get_object_or_404(movies, movieId=serializer[0])
-    return(movie)
+@api_view(['GET'])
+def getOneMovie(request, movieId):
+    for movie in movies:
+        if movie["movieId"] == movieId:
+            return Response(movie)
 
 
 # Handles GET requests to retrieve a list of cities
