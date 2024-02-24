@@ -5,7 +5,12 @@ from argon2 import PasswordHasher
 class MovieSerializer(ModelSerializer):
     class Meta:
         model = Movie
-        fields = ['movieId', 'mediaId', 'director']
+        fields = ['movieId', 'mediaId', 'director', "name", "genre", "releaseYear", "cast", "length", "description", "screenwriters"]
+
+class OneMovieSerializer(ModelSerializer):
+    class Meta:
+        model = Movie
+        fields = ['movieId']
 
 class CitySerializer(ModelSerializer):
     class Meta:
