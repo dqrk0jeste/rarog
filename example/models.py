@@ -101,3 +101,13 @@ class Tvshow(models.Model):
 
     def __str__(self):
         return str(self.mediaId)
+
+# Media comment model
+class Comment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    media = models.ForeignKey(Media, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = models.TextField()
+
+    def __str__(self):
+        return str(self.id)
