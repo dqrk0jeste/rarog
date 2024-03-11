@@ -92,13 +92,15 @@ WSGI_APPLICATION = 'vercel_app.wsgi.app'
 
 DATABASES = {
   'default': {
-    'ENGINE': 'django.db.backends.mysql',
+    'ENGINE': 'mssql',
     'NAME': os.environ.get('DB_NAME'),
     'HOST': os.environ.get('DB_HOST'),
     'PORT': os.environ.get('DB_PORT'),
     'USER': os.environ.get('DB_USER'),
     'PASSWORD': os.environ.get('DB_PASSWORD'),
-    'OPTIONS': {} if os.environ.get('ENVIRONMENT') == 'dev' else {'ssl': {'ca': os.environ.get('MYSQL_ATTR_SSL_CA')}}
+    'OPTIONS': { 
+      'driver': 'ODBC Driver 17 for SQL Server',
+     }
   }
 }
 
