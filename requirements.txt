@@ -9,7 +9,7 @@ djangorestframework==3.14.0
 mssql-django==1.4
 pycparser==2.21
 PyMySQL==1.1.0
-pyodbc==4.0.10
+pyodbc==3.0.8
 python-dotenv==1.0.0
 pytz==2023.3.post1
 sqlparse==0.4.4
