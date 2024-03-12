@@ -1,5 +1,4 @@
 {
-  "installCommand": "sudo yum install gcc-c++ python3-devel unixODBC-devel & sudo ln -s /usr/libexec/gcc/x86_64-amazon-linux/13.2/cc1plus /usr/bin/ & pip install requirements.txt",
   "builds": [
     {
       "src": "vercel_app/wsgi.py",
