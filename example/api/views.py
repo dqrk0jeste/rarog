@@ -38,7 +38,7 @@ def createUser(request):
         serializer.save()
         # Finding the new user to return its id
         user = User.objects.get(username=serializer.data['username'])
-        return Response({'userId':user.userId}, status=status.HTTP_201_CREATED)
+        return Response({'userId':user.id}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Handles POST requests for user login
@@ -57,7 +57,7 @@ def login(request):
             # Check the password 
                 ph = PasswordHasher(time_cost=2, memory_cost=65536, parallelism=4) # The parallelism optional argument should be set to the number of cores of the server CPU
                 ph.verify(user.password, serializer.data['password'])
-                return Response({'userId':user.userId}, status=status.HTTP_200_OK)
+                return Response({'userId':user.id}, status=status.HTTP_200_OK)
             except exceptions.VerifyMismatchError:
                 # Incorrect password
                 return Response({'password':'Incorrect password.'}, status=status.HTTP_401_UNAUTHORIZED)
