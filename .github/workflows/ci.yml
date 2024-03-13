@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-
 jobs:
   build:
 
@@ -17,7 +16,7 @@ jobs:
       DB_PORT: ${{ secrets.DB_PORT }}
       DB_USER: ${{ secrets.DB_USER }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      MYSQL_ATTR_SSL_CA: ${{ secrets.MYSQL_ATTR_SSL_CA }}
+      SSL_CERT: ${{ secrets.SSL_CERT }}
 
     steps:
     - name: Checkout code

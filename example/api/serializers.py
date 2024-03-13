@@ -1,21 +1,29 @@
 from rest_framework.serializers import ModelSerializer
-from example.models import City, User, Movie
+from example.models import Category, City, Media, User, Movie
 from argon2 import PasswordHasher
 
-class MovieSerializer(ModelSerializer):
-    class Meta:
-        model = Movie
-        fields = ['movieId', 'mediaId', 'director', "name", "genre", "releaseYear", "cast", "length", "description", "screenwriters"]
 
-class OneMovieSerializer(ModelSerializer):
+class CategorySerializer(ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+class MediaSerializer(ModelSerializer):
+    category = CategorySerializer()
+    class Meta:
+        model = Media
+        fields = '__all__'
+
+class MovieSerializer(ModelSerializer):
+    media = MediaSerializer()
     class Meta:
         model = Movie
-        fields = ['movieId']
+        fields = '__all__'
 
 class CitySerializer(ModelSerializer):
     class Meta:
         model = City
-        fields = ['cityId', 'name']
+        fields = ['id', 'name']
 
 class NewUserSerializer(ModelSerializer):
     class Meta:

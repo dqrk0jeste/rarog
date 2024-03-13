@@ -3,7 +3,7 @@ from . import views
 
 
 urlpatterns = [
-    path('onemovie/<str:movieId>', views.getOneMovie),
+    path('movies/<str:movieId>', views.getMovie),
     path('movies/', views.getMovies),
     path('cities/', views.getCities),
     path('signup/', views.createUser),
