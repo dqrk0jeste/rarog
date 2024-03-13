@@ -16,20 +16,14 @@ class MediaSerializer(ModelSerializer):
 
 class MovieSerializer(ModelSerializer):
     media = MediaSerializer()
-
     class Meta:
         model = Movie
         fields = '__all__'
 
-class OneMovieSerializer(ModelSerializer):
-    class Meta:
-        model = Movie
-        fields = ['id']
-
 class CitySerializer(ModelSerializer):
     class Meta:
         model = City
-        fields = ['cityId', 'name']
+        fields = ['id', 'name']
 
 class NewUserSerializer(ModelSerializer):
     class Meta:

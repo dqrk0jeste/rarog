@@ -98,7 +98,7 @@ DATABASES = {
     'PORT': os.environ.get('DB_PORT'),
     'USER': os.environ.get('DB_USER'),
     'PASSWORD': os.environ.get('DB_PASSWORD'),
-    'OPTIONS': {} if os.environ.get('ENVIRONMENT') == 'dev' else {'ssl': {'ca': os.environ.get('SSL_CERT') }}
+    'OPTIONS': {} if os.environ.get('ENVIRONMENT') == 'dev' else {'ssl': {'ca': os.environ.get('SSL_CERT')}}
   }
 }
 
