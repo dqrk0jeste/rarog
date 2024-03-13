@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from example.models import City, User, Movie, Media
-from .serializers import CitySerializer, NewUserSerializer, LoginSerializer, MovieSerializer, OneMovieSerializer
+from .serializers import CitySerializer, NewUserSerializer, LoginSerializer, MovieSerializer
 from argon2 import PasswordHasher, exceptions
 from django.shortcuts import get_object_or_404
 
