@@ -2,54 +2,135 @@
 List of endpoints exposed on https://rarog-django.vercel.app/api/
 
 
-
-## POST /
-Handles POST requests to get details on one movie.
+## POST /createcomment
+Handles POST requests to create a new comment.
 Requires a JSON body
 ```sh
 {
-	"movieId": String,	
+	"mediaId": String,
+	"userId": String,
+	"text": String
 }
 ```
-If successful returns the JSON body with response status 201.
+If successful returns a JSON body with response status 201.
 ```sh
 {
-	"mediaId": String,
-		"movieId": String,
-		"name": String,
-		"director": String,
-		"genre": String,
-		"releaseYear": Integer,
-		"cast": String,
-		"length": Integer,
-		"description": String,
-		"screenwriters": Srting
+	"commentId": String
 }
 ```
+In case of an error returns a response status 400.
 
+## POST /createmedia/`<categoryName>`
+Handles POST requests to create a new media within `<categoryName>` category.
+Requires a JSON body.
+Movies:
+```sh
+{
+	"name": String,
+	"releaseYear": Integer,
+	"genre": String,
+	"director": String,
+	"cast": String,
+	"length": Integer,
+	"description": String,
+	"screenwriters": String
+}
+```
+Books:
+```sh
+{
+	"name": String,
+	"releaseYear": Integer,
+	"genre": String,
+	"authors": String,
+	"description": String
+}
+```
+If successful returns a JSON body with response status 201.
+```sh
+{
+	"mediaId": String
+}
+```
+In case of an error returns a response status 400.
 
-In case of an error returns a response status 400 and a list with field names as keys and list of errors which occured on that field as values.
+## GET /getsinglemedia/`<mediaId>`
+Handles GET requests to get details on one media.
+If successful returns a JSON body with response status 200.
+Movies:
+```sh
+{
+    "id": String,
+    "media": {
+        "id": String,
+        "category": {
+            "id": String,
+            "name": String
+        },
+        "name": String,
+        "releaseYear": Integer,
+        "genre": String
+    },
+    "director": String,
+    "cast": String,
+    "length": Integer,
+    "description": String,
+    "screenwriters": String,
+    "comments": [
+        {
+            "id": String,
+            "user": String,
+            "text": String
+        }
+    ]
+}
+```
+Books:
+```sh
+{
+    "id": String,
+    "media": {
+        "id": String,
+        "category": {
+            "id": String,
+            "name": String
+        },
+        "name": String,
+        "releaseYear": Integer,
+        "genre": String
+    },
+    "authors": String,
+    "description": String,
+    "comments": [
+        {
+            "id": String,
+            "user": String,
+            "text": String
+        }
+    ]
+}
+```
+In case of an error returns a response status 400.
 
-
-
-## GET /movies
-Returns an array of movies in JSON
+## GET /getmedia/`<categoryName>`
+Handles GET requests to get all media objects from the `<categoryName>` category.
+Returns a JSON body:
 ```sh
 [
-	{
-		"mediaId": String,
-		"movieId": String,
-		"name": String,
-		"director": String,
-		"genre": String,
-		"releaseYear": Integer,
-		"cast": String,
-		"length": Integer,
-		"description": String,
-		"screenwriters": Srting
-	}
+    {
+        "id": String,
+        "category": {
+            "id": String,
+            "name": String
+        },
+        "name": String,
+        "releaseYear": Integer,
+        "genre": String
+    }
 ]
 ```
+In case of an error returns a response status 400.
+
 
 ## GET /cities
 Returns an array of cities in JSON

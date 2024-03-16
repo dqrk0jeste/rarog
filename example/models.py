@@ -27,7 +27,7 @@ class Category(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.type
+        return self.name
 
 # Media model
 class Media(models.Model):
@@ -38,7 +38,7 @@ class Media(models.Model):
     genre = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.name
+        return str(self.id)
 
 # Song model
 class Song(models.Model):
@@ -49,7 +49,7 @@ class Song(models.Model):
     length = models.BigIntegerField()
 
     def __str__(self):
-        return str(self.mediaId)
+        return str(self.id)
 
 # Book model
 class Book(models.Model):
@@ -59,7 +59,7 @@ class Book(models.Model):
     description = models.TextField()
 
     def __str__(self):
-        return str(self.mediaId)
+        return str(self.id)
 
 # Movie model
 class Movie(models.Model):
@@ -85,7 +85,7 @@ class Play(models.Model):
     screenwriters = models.CharField(max_length=100)
 
     def __str__(self):
-        return str(self.mediaId)
+        return str(self.id)
 
 # TV Show model
 class Tvshow(models.Model):
@@ -99,4 +99,14 @@ class Tvshow(models.Model):
     screenwriters = models.CharField(max_length=100)
 
     def __str__(self):
-        return str(self.mediaId)
+        return str(self.id)
+
+# Media comment model
+class Comment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    media = models.ForeignKey(Media, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = models.TextField()
+
+    def __str__(self):
+        return str(self.id)
