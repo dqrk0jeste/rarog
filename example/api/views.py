@@ -1,22 +1,87 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from example.models import City, User, Movie, Media
-from .serializers import CitySerializer, NewUserSerializer, LoginSerializer, MovieSerializer
+from example.models import City, User, Movie, Book, Media, Comment, Category
+from .serializers import CitySerializer, NewUserSerializer, LoginSerializer, MovieSerializer, BookSerializer, CommentSerializer, MediaSerializer
 from argon2 import PasswordHasher, exceptions
-from django.shortcuts import get_object_or_404
 
-@api_view(['GET'])
-def getMovies(request):
-    movies = Movie.objects.all()
-    serializer = MovieSerializer(movies, many=True)
-    return Response(serializer.data)
 
+# Handles POST requests to create a new comment
+# Requires an object with keys: 'mediaId', 'userId', 'text'
+# If successful returns commentId with response status 200
+# In case of an error returns a response status 400
+@api_view(['POST'])
+def createComment(request):
+    try:
+        newComment = Comment.objects.create(media_id=request.data['mediaId'], user_id=request.data['userId'], text=request.data['text'])
+        return Response({'commentId': newComment.id}, status=status.HTTP_201_CREATED)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+# Handles POST requests to create a new media
+# Requires an object with all keys from the appropriate category
+# If successful returns mediaId and specific media id with response status 200
+# In case of an error returns a response status 400
+@api_view(['POST'])
+def createMedia(request, categoryName):
+    mediaParams = ['name', 'releaseYear', 'genre']
+    try:
+        mediaArgs = {}
+        otherArgs = {}
+        mediaArgs['category'] = Category.objects.get(name=categoryName)
+        for k, v in request.data.items():
+            if k in mediaParams:
+                mediaArgs[k] = v
+            else:
+                otherArgs[k] = v
+        newMedia = Media.objects.create(**mediaArgs)
+        if(categoryName == 'movie'):
+            newMovie = Movie.objects.create(media=newMedia, **otherArgs)
+        elif(categoryName == 'book'):
+            newBook = Book.objects.create(media=newMedia, **otherArgs)
+        
+        return Response({"mediaId":newMedia.id}, status=status.HTTP_201_CREATED)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+# Handles GET requests to retrieve a single media
+# Returns a media objects with all keys from the appropriate category
+# In case of an error returns a response status 400
 @api_view(['GET'])
-def getMovie(request, movieId):
-    movie = Movie.objects.get(id=movieId)
-    serializer = MovieSerializer(movie)
-    return Response(serializer.data)
+def getSingleMedia(request, mediaId):
+    try:
+        categoryName = Media.objects.get(id=mediaId).category.name
+        if(categoryName == 'movie'):
+            movie = Movie.objects.get(media=mediaId)
+            results = MovieSerializer(movie).data
+        elif(categoryName == 'book'):
+            book = Book.objects.get(media=mediaId)
+            results = BookSerializer(book).data
+
+        try:
+            comments = Comment.objects.filter(media=mediaId)
+            results['comments'] = CommentSerializer(comments, many=True).data
+        except Comment.DoesNotExist:
+            results['comments'] = []
+        return Response(results)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+# Handles GET requests to retrieve a list of all media in a certain category
+# Returns a list of media objects with keys: 'mediaId', 'name', 'categoryId_id', 'releaseYear', 'genre'
+# In case of an error returns a response status 400
+@api_view(['GET'])
+def getAllMedia(request, categoryName):
+    try:
+        medias = Media.objects.filter(category__name=categoryName)
+        results = MediaSerializer(medias, many=True).data
+        return Response(results)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 # Handles GET requests to retrieve a list of cities
 # Returns a list of cities with keys: 'cityId', 'name'
