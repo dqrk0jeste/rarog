@@ -36,6 +36,7 @@ class Media(models.Model):
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     releaseYear = models.BigIntegerField()
     genre = models.CharField(max_length=100)
+    imageId = models.UUIDField(null=True)
 
     def __str__(self):
         return str(self.id)

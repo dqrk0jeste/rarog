@@ -2,8 +2,11 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from example.models import City, User, Movie, Book, Media, Comment, Category
-from .serializers import CitySerializer, NewUserSerializer, LoginSerializer, MovieSerializer, BookSerializer, CommentSerializer, MediaSerializer
+from .serializers import *
 from argon2 import PasswordHasher, exceptions
+import os, uuid
+from azure.storage.blob import BlobServiceClient
+from django.core.paginator import Paginator
 
 
 # Handles POST requests to create a new comment
@@ -19,69 +22,76 @@ def createComment(request):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-# Handles POST requests to create a new media
-# Requires an object with all keys from the appropriate category
-# If successful returns mediaId and specific media id with response status 200
-# In case of an error returns a response status 400
-@api_view(['POST'])
-def createMedia(request, categoryName):
-    mediaParams = ['name', 'releaseYear', 'genre']
-    try:
-        mediaArgs = {}
-        otherArgs = {}
-        mediaArgs['category'] = Category.objects.get(name=categoryName)
-        for k, v in request.data.items():
-            if k in mediaParams:
-                mediaArgs[k] = v
-            else:
-                otherArgs[k] = v
-        newMedia = Media.objects.create(**mediaArgs)
-        if(categoryName == 'movie'):
-            newMovie = Movie.objects.create(media=newMedia, **otherArgs)
-        elif(categoryName == 'book'):
-            newBook = Book.objects.create(media=newMedia, **otherArgs)
-        
-        return Response({"mediaId":newMedia.id}, status=status.HTTP_201_CREATED)
-    except:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
-# Handles GET requests to retrieve a single media
-# Returns a media objects with all keys from the appropriate category
-# In case of an error returns a response status 400
 @api_view(['GET'])
-def getSingleMedia(request, mediaId):
+def singleMedia(request, category, mediaId):
     try:
-        categoryName = Media.objects.get(id=mediaId).category.name
-        if(categoryName == 'movie'):
-            movie = Movie.objects.get(media=mediaId)
-            results = MovieSerializer(movie).data
-        elif(categoryName == 'book'):
-            book = Book.objects.get(media=mediaId)
-            results = BookSerializer(book).data
+        if(category == 'movie'):
+            serializer = MovieSerializer
+            specMediaClass = Movie
+        elif(category == 'book'):
+            serializer = BookSerializer
+            specMediaClass = Book
+
+        specMedia = specMediaClass.objects.get(id=mediaId)
+        results = serializer(specMedia).data
 
         try:
-            comments = Comment.objects.filter(media=mediaId)
+            comments = Comment.objects.filter(media=specMedia.media.id)
             results['comments'] = CommentSerializer(comments, many=True).data
         except Comment.DoesNotExist:
             results['comments'] = []
         return Response(results)
-    except:
+    except: 
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-# Handles GET requests to retrieve a list of all media in a certain category
-# Returns a list of media objects with keys: 'mediaId', 'name', 'categoryId_id', 'releaseYear', 'genre'
-# In case of an error returns a response status 400
-@api_view(['GET'])
-def getAllMedia(request, categoryName):
+@api_view(['GET', 'POST'])
+def media(request, category):
     try:
-        medias = Media.objects.filter(category__name=categoryName)
-        results = MediaSerializer(medias, many=True).data
-        return Response(results)
-    except:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        if(category == 'movie'):
+            serializer = ShortMovieSerializer
+            specMediaClass = Movie
+        elif(category == 'book'):
+            serializer = ShortBookSerializer
+            specMediaClass = Book
+        
+        if request.method == 'GET':
+            medias = specMediaClass.objects.all().order_by('media__name')
 
+            pageSize = request.GET.get('page-size', '')
+            pageNumber = int(request.GET.get('page-number', '1'))
+            if(pageSize != ''):
+                paginator = Paginator(medias, per_page=int(pageSize))
+                medias = paginator.page(pageNumber)
+            results = serializer(medias, many=True).data
+            return Response(results)
+        if request.method == 'POST':
+            blobId = None
+            if len(request.FILES) > 0:
+                file = request.FILES['image']
+                blobId = str(uuid.uuid4())
+                bsclient = BlobServiceClient.from_connection_string(os.environ.get('AZURE_STORAGE_CONNECTION_STRING'))
+                blobClient = bsclient.get_blob_client(container='images', blob=blobId+".jpg")
+                blobClient.upload_blob(file.read())
+
+            mediaParams = ['name', 'releaseYear', 'genre']
+            mediaArgs = {}
+            otherArgs = {}
+            mediaArgs['imageId'] = blobId
+            mediaArgs['category'] = Category.objects.get(name=category)
+            for k, v in request.data.items():
+                if k in mediaParams:
+                    mediaArgs[k] = v
+                else:
+                    otherArgs[k] = v
+            otherArgs.pop('image', None)
+            newMedia = Media.objects.create(**mediaArgs)
+            newSpecMedia = specMediaClass.objects.create(media=newMedia, **otherArgs)
+            
+            return Response({"id":newSpecMedia.id}, status=status.HTTP_201_CREATED)
+    except: 
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+   
 
 # Handles GET requests to retrieve a list of cities
 # Returns a list of cities with keys: 'cityId', 'name'
