@@ -3,7 +3,7 @@ List of endpoints exposed on https://rarog-django.vercel.app/api/
 
 
 ## POST /createcomment
-Handles POST requests to create a new comment.
+Handles POST requests to create a new comment.\
 Requires a JSON body
 ```sh
 {
@@ -20,9 +20,10 @@ If successful returns a JSON body with response status 201.
 ```
 In case of an error returns a response status 400.
 
-## POST /createmedia/`<categoryName>`
-Handles POST requests to create a new media within `<categoryName>` category.
-Requires a JSON body.
+## POST /`<categoryName>`
+Handles multipart POST requests to create a new media within `<categoryName>` category.\
+Image file (JPEG or PNG) is optional and should be labeled 'image'.\
+Required body:\
 Movies:
 ```sh
 {
@@ -49,27 +50,25 @@ Books:
 If successful returns a JSON body with response status 201.
 ```sh
 {
-	"mediaId": String
+	"id": String
 }
 ```
 In case of an error returns a response status 400.
 
-## GET /getsinglemedia/`<mediaId>`
-Handles GET requests to get details on one media.
-If successful returns a JSON body with response status 200.
+## GET /`<categoryName>`/`<id>`
+Handles GET requests to get details on one media from chosen category.
+If successful returns a JSON body with response status 200.\
+Optionally `page-number` and `page-size` can be passed as URL parameters for pagination.\
 Movies:
 ```sh
 {
     "id": String,
     "media": {
         "id": String,
-        "category": {
-            "id": String,
-            "name": String
-        },
         "name": String,
         "releaseYear": Integer,
-        "genre": String
+        "genre": String,
+        "imageId": String
     },
     "director": String,
     "cast": String,
@@ -91,13 +90,10 @@ Books:
     "id": String,
     "media": {
         "id": String,
-        "category": {
-            "id": String,
-            "name": String
-        },
         "name": String,
         "releaseYear": Integer,
-        "genre": String
+        "genre": String,
+        "imageId": String (or null)
     },
     "authors": String,
     "description": String,
@@ -112,20 +108,20 @@ Books:
 ```
 In case of an error returns a response status 400.
 
-## GET /getmedia/`<categoryName>`
-Handles GET requests to get all media objects from the `<categoryName>` category.
+## GET /`<categoryName>`
+Handles GET requests to get all media objects from the `<categoryName>` category.\
 Returns a JSON body:
 ```sh
 [
     {
         "id": String,
-        "category": {
+        "media": {
             "id": String,
-            "name": String
-        },
-        "name": String,
-        "releaseYear": Integer,
-        "genre": String
+            "name": String,
+            "releaseYear": Integer,
+            "genre": String,
+            "imageId": String (or null)
+        }
     }
 ]
 ```
@@ -144,7 +140,7 @@ Returns an array of cities in JSON
 ```
 
 ## POST /signup
-Handles POST requests to create a new user.
+Handles POST requests to create a new user.\
 Requires a JSON body
 ```sh
 {
@@ -154,11 +150,11 @@ Requires a JSON body
 	"cityId": String
 }
 ```
-If successful returns the "userId" with response status 201.
+If successful returns the "userId" with response status 201.\
 In case of an error returns a response status 400 and a list with field names as keys and list of errors which occured on that field as values.
 
 ## POST /login
-Handles POST requests for logging in a user.
+Handles POST requests for logging in a user.\
 Requires a JSON body
 ```sh
 {
@@ -166,5 +162,5 @@ Requires a JSON body
 	"password": String
 }
 ```
-If successful returns the "userId" with response status 200.
+If successful returns the "userId" with response status 200.\
 In case of an error returns a response status 400 and a list with field names as keys and list of errors which occured on that field as values.

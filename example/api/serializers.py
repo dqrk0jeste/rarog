@@ -13,10 +13,9 @@ class CategorySerializer(ModelSerializer):
         fields = '__all__'
 
 class MediaSerializer(ModelSerializer):
-    category = CategorySerializer()
     class Meta:
         model = Media
-        fields = '__all__'
+        fields = ['id', 'name', 'releaseYear', 'genre', 'imageId']
 
 class MovieSerializer(ModelSerializer):
     media = MediaSerializer()
@@ -24,11 +23,23 @@ class MovieSerializer(ModelSerializer):
         model = Movie
         fields = '__all__'
 
+class ShortMovieSerializer(ModelSerializer):
+    media = MediaSerializer()
+    class Meta:
+        model = Movie
+        fields = ['id', 'media']
+
 class BookSerializer(ModelSerializer):
     media = MediaSerializer()
     class Meta:
         model = Book
         fields = '__all__'
+
+class ShortBookSerializer(ModelSerializer):
+    media = MediaSerializer()
+    class Meta:
+        model = Book
+        fields = ['id', 'media']
 
 class CitySerializer(ModelSerializer):
     class Meta:
