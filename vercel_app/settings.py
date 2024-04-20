@@ -62,7 +62,7 @@ MIDDLEWARE = [
 # Allow requests from frontend
 
 CORS_ALLOW_ALL_ORIGINS = True if os.environ.get('ENVIRONMENT') == 'dev' else False
-CORS_ALLOWED_ORIGINS = [ "https://filip841.github.io" ]
+CORS_ALLOWED_ORIGINS = [ "https://filip841.github.io", "https://rarog-frontend.vercel.app" ]
 
 ROOT_URLCONF = 'vercel_app.urls'
 
