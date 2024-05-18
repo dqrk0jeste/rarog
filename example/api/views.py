@@ -1,12 +1,13 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from example.models import City, User, Movie, Book, Media, Comment, Category
+from example.models import *
 from .serializers import *
 from argon2 import PasswordHasher, exceptions
 import os, uuid
 from azure.storage.blob import BlobServiceClient
 from django.core.paginator import Paginator
+from django.db.models import Q
 
 
 # Handles POST requests to create a new comment
@@ -22,15 +23,32 @@ def createComment(request):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+# Takes category string (e.g. 'movie') and returns the matching model object, serializer object and author field name (e.g. Movie, MovieSerializer and 'director')
+def handleMultipleCategories(category, short=False, author=False):
+    match category:
+        case 'movie':
+            resModel = Movie
+            authorField = 'director'
+            if short:
+                resSerializer = ShortMovieSerializer
+            else:
+                resSerializer = MovieSerializer
+        case 'book':
+            resModel = Book
+            authorField = 'authors'
+            if short:
+                resSerializer = ShortBookSerializer
+            else:
+                resSerializer = BookSerializer
+    if author:
+        return resModel, resSerializer, authorField
+    return resModel, resSerializer
+
+
 @api_view(['GET'])
 def singleMedia(request, category, mediaId):
     try:
-        if(category == 'movie'):
-            serializer = MovieSerializer
-            specMediaClass = Movie
-        elif(category == 'book'):
-            serializer = BookSerializer
-            specMediaClass = Book
+        specMediaClass, serializer = handleMultipleCategories(category)
 
         specMedia = specMediaClass.objects.get(id=mediaId)
         results = serializer(specMedia).data
@@ -48,24 +66,30 @@ def singleMedia(request, category, mediaId):
 @api_view(['GET', 'POST'])
 def media(request, category):
     try:
-        if(category == 'movie'):
-            serializer = ShortMovieSerializer
-            specMediaClass = Movie
-        elif(category == 'book'):
-            serializer = ShortBookSerializer
-            specMediaClass = Book
+        specMediaClass, serializer, authorField = handleMultipleCategories(category, short=True, author=True)
         
+        # get all specific medias
         if request.method == 'GET':
-            medias = specMediaClass.objects.all().order_by('media__name')
+            # search
+            searchString = request.GET.get('search', '').strip()
+            if searchString == '':
+                medias = specMediaClass.objects.all()
+            else:
+                medias = specMediaClass.objects.filter(Q(media__name__icontains=searchString) | Q(media__genre__icontains=searchString) | Q(**{authorField+'__icontains':searchString}))
+            medias = medias.order_by('media__name')
 
+            # pagination
             pageSize = request.GET.get('page-size', '')
             pageNumber = int(request.GET.get('page-number', '1'))
             if(pageSize != ''):
                 paginator = Paginator(medias, per_page=int(pageSize))
                 medias = paginator.page(pageNumber)
+            
             results = serializer(medias, many=True).data
             return Response(results)
+        # create media
         if request.method == 'POST':
+            # image handling
             blobId = None
             if len(request.FILES) > 0:
                 file = request.FILES['image']
@@ -74,6 +98,7 @@ def media(request, category):
                 blobClient = bsclient.get_blob_client(container='images', blob=blobId+".jpg")
                 blobClient.upload_blob(file.read())
 
+            # separating Media and specific media arguments
             mediaParams = ['name', 'releaseYear', 'genre']
             mediaArgs = {}
             otherArgs = {}

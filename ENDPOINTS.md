@@ -58,7 +58,6 @@ In case of an error returns a response status 400.
 ## GET /`<categoryName>`/`<id>`
 Handles GET requests to get details on one media from chosen category.
 If successful returns a JSON body with response status 200.\
-Optionally `page-number` and `page-size` can be passed as URL parameters for pagination.\
 Movies:
 ```sh
 {
@@ -110,7 +109,10 @@ In case of an error returns a response status 400.
 
 ## GET /`<categoryName>`
 Handles GET requests to get all media objects from the `<categoryName>` category.\
+`page-number` and `page-size` are optional URL parameters for pagination.\
+`search` is an optional URL parameter for search by title, genre and author.
 Returns a JSON body:
+Movies:
 ```sh
 [
     {
@@ -121,7 +123,24 @@ Returns a JSON body:
             "releaseYear": Integer,
             "genre": String,
             "imageId": String (or null)
-        }
+        },
+        "director": String
+    }
+]
+```
+Books:
+```sh
+[
+    {
+        "id": String,
+        "media": {
+            "id": String,
+            "name": String,
+            "releaseYear": Integer,
+            "genre": String,
+            "imageId": String (or null)
+        },
+        "authors": String
     }
 ]
 ```
