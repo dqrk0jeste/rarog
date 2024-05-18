@@ -25,21 +25,20 @@ def createComment(request):
 
 # Takes category string (e.g. 'movie') and returns the matching model object, serializer object and author field name (e.g. Movie, MovieSerializer and 'director')
 def handleMultipleCategories(category, short=False, author=False):
-    match category:
-        case 'movie':
-            resModel = Movie
-            authorField = 'director'
-            if short:
-                resSerializer = ShortMovieSerializer
-            else:
-                resSerializer = MovieSerializer
-        case 'book':
-            resModel = Book
-            authorField = 'authors'
-            if short:
-                resSerializer = ShortBookSerializer
-            else:
-                resSerializer = BookSerializer
+    if category == 'movie':
+        resModel = Movie
+        authorField = 'director'
+        if short:
+            resSerializer = ShortMovieSerializer
+        else:
+            resSerializer = MovieSerializer
+    elif category == 'book':
+        resModel = Book
+        authorField = 'authors'
+        if short:
+            resSerializer = ShortBookSerializer
+        else:
+            resSerializer = BookSerializer
     if author:
         return resModel, resSerializer, authorField
     return resModel, resSerializer
