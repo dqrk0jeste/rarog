@@ -1,0 +1,85 @@
+[
+  {
+    "model": "example.category",
+    "pk": "5b7ba3245a1949a688cf6a78489e385c",
+    "fields": {
+      "name": "movie"
+    }
+  },
+  {
+    "model": "example.category",
+    "pk": "bbc4c3e372f94b0685f893936c66b59f",
+    "fields": {
+      "name": "book"
+    }
+  },
+  {
+    "model": "example.category",
+    "pk": "350616b8adeb447a94babd80388e5326",
+    "fields": {
+      "name": "music"
+    }
+  },
+  {
+    "model": "example.media",
+    "pk": "503382f5247b435bb011a5f75af30a3c",
+    "fields": {
+      "name": "Avengers: Endgame",
+      "category_id": "5b7ba3245a1949a688cf6a78489e385c",
+      "releaseYear": 2019,
+      "genre": "Action/Adventure/Drama",
+      "imageId": "25b7576550014565bb504fcd33aaf8e3"
+    }
+  },
+  {
+    "model": "example.media",
+    "pk": "9b951ce4c2424e10a1a4f506436d8430",
+    "fields": {
+      "name": "The Idiot",
+      "category_id": "bbc4c3e372f94b0685f893936c66b59f",
+      "releaseYear": 1805,
+      "genre": "Sve"
+    }
+  },
+  {
+    "model": "example.media",
+    "pk": "840fe7fb064b45cda1becca3572ee6fd",
+    "fields": {
+      "name": "More",
+      "category_id": "350616b8adeb447a94babd80388e5326",
+      "releaseYear": 2013,
+      "genre": "Pop"
+    }
+  },
+  {
+    "model": "example.movie",
+    "pk": "903c042d35e248cebe9bcdf5d48e2e99",
+    "fields": {
+      "media_id": "503382f5247b435bb011a5f75af30a3c",
+      "length": 120,
+      "director": "Darko",
+      "cast": "Darko",
+      "description": "Mrzim ovo bas",
+      "screenwriters": "Darko"
+    }
+  },
+  {
+    "model": "example.song",
+    "pk": "a52e2dfc2f2e42c687ce0c31a97221b8",
+    "fields": {
+      "media_id": "840fe7fb064b45cda1becca3572ee6fd",
+      "length": 120,
+      "artist": "Darko",
+      "album": "Darko"
+    }
+  },
+  {
+    "model": "example.book",
+    "pk": "75fc60c7bead4779-a5229ef903c5b11c",
+    "fields": {
+      "media_id": "9b951ce4c2424e10a1a4f506436d8430",
+      "authors": "Darko",
+      "description": "Mrzim sve"
+    }
+  }
+]
