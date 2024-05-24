@@ -2,20 +2,21 @@
 List of endpoints exposed on https://rarog-django.vercel.app/api/
 
 
-## POST /createcomment
-Handles POST requests to create a new comment.\
+## POST /rate
+Handles POST requests to rate a media.\
 Requires a JSON body
 ```sh
 {
 	"mediaId": String,
 	"userId": String,
-	"text": String
+	"comment": String,
+    "rating": Integer
 }
 ```
 If successful returns a JSON body with response status 201.
 ```sh
 {
-	"commentId": String
+	"id": String
 }
 ```
 In case of an error returns a response status 400.
@@ -74,11 +75,12 @@ Movies:
     "length": Integer,
     "description": String,
     "screenwriters": String,
-    "comments": [
+    "ratings": [
         {
             "id": String,
             "user": String,
-            "text": String
+            "comment": String,
+            "rating": Integer
         }
     ]
 }
@@ -96,11 +98,12 @@ Books:
     },
     "authors": String,
     "description": String,
-    "comments": [
+    "ratings": [
         {
             "id": String,
             "user": String,
-            "text": String
+            "comment": String,
+            "rating": Integer
         }
     ]
 }
