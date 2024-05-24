@@ -5,7 +5,7 @@ categories = ['movie', 'book']
 regexString = '|'.join(categories)
 
 urlpatterns = [
-    path('createcomment/', views.createComment),
+    path('rate/', views.createRating),
     re_path(r'^(?P<category>('+regexString+r'))/$', views.media),
     re_path(r'^(?P<category>('+regexString+r'))/(?P<mediaId>[a-zA-Z0-9-]{1,})/$', views.singleMedia),
     path('cities/', views.getCities),

@@ -10,15 +10,15 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 
 
-# Handles POST requests to create a new comment
-# Requires an object with keys: 'mediaId', 'userId', 'text'
-# If successful returns commentId with response status 200
+# Handles POST requests to rate a media
+# Requires an object with keys: 'mediaId', 'userId', 'comment', 'rating'
+# If successful returns the rating id with response status 201
 # In case of an error returns a response status 400
 @api_view(['POST'])
-def createComment(request):
+def createRating(request):
     try:
-        newComment = Comment.objects.create(media_id=request.data['mediaId'], user_id=request.data['userId'], text=request.data['text'])
-        return Response({'commentId': newComment.id}, status=status.HTTP_201_CREATED)
+        newRating = Rating.objects.create(media_id=request.data['mediaId'], user_id=request.data['userId'], comment=request.data['comment'], rating=request.data['rating'])
+        return Response({'id': newRating.id}, status=status.HTTP_201_CREATED)
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -51,12 +51,12 @@ def singleMedia(request, category, mediaId):
 
         specMedia = specMediaClass.objects.get(id=mediaId)
         results = serializer(specMedia).data
-
+        # querying ratings
         try:
-            comments = Comment.objects.filter(media=specMedia.media.id)
-            results['comments'] = CommentSerializer(comments, many=True).data
-        except Comment.DoesNotExist:
-            results['comments'] = []
+            ratings = Rating.objects.filter(media=specMedia.media.id)
+            results['ratings'] = RatingSerializer(ratings, many=True).data
+        except Rating.DoesNotExist:
+            results['ratings'] = []
         return Response(results)
     except: 
         return Response(status=status.HTTP_400_BAD_REQUEST)
