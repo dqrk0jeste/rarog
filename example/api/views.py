@@ -17,6 +17,9 @@ from django.db.models import Q
 @api_view(['POST'])
 def createRating(request):
     try:
+        # check if rating is valid
+        if(request.data['rating'] > 5 or request.data['rating'] < 1):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         newRating = Rating.objects.create(media_id=request.data['mediaId'], user_id=request.data['userId'], comment=request.data['comment'], rating=request.data['rating'])
         return Response({'id': newRating.id}, status=status.HTTP_201_CREATED)
     except:
