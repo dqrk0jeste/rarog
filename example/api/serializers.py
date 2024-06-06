@@ -63,7 +63,7 @@ class CitySerializer(ModelSerializer):
 class NewUserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'password', 'email', 'cityId']
+        fields = ['username', 'password', 'email', 'city']
     
     # Modified create method which hashes the password
     def create(self, data):

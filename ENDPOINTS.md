@@ -282,7 +282,7 @@ Returns an array of cities in JSON
 ```sh
 [
 	{
-		"cityId": String,
+		"id": String,
 		"name": String
 	}
 ]
@@ -296,7 +296,7 @@ Requires a JSON body
 	"username": String,
 	"password": String,
 	"email": String,
-	"cityId": String
+	"city": String
 }
 ```
 If successful returns the "userId" with response status 201.\

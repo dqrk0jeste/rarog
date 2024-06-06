@@ -9,6 +9,18 @@ from azure.storage.blob import BlobServiceClient
 from django.core.paginator import Paginator
 from django.db.models import Q
 
+defaultUserLists = [
+    {
+        "category": "movie",
+        "name": "Favourite Movies",
+        "description": "My favourite movies."
+    },
+    {
+        "category": "movie",
+        "name": "Watch Later",
+        "description": "Movies I will watch later."
+    },
+]
 
 @api_view(['POST'])
 def getStatus(request):
@@ -94,8 +106,6 @@ def list(request, listId):
         if request.method == 'GET':
             category = List.objects.get(pk=listId).category.name
             specMediaClass, serializer, authorField = handleMultipleCategories(category, short=True, author=True)
-
-
 
             # search
             searchString = request.GET.get('search', '').strip()
@@ -243,7 +253,6 @@ def media(request, category):
    
 
 # Handles GET requests to retrieve a list of cities
-# Returns a list of cities with keys: 'cityId', 'name'
 @api_view(['GET'])
 def getCities(request):
     queryset = City.objects.all()
@@ -251,7 +260,7 @@ def getCities(request):
     return Response(serializer.data)
 
 # Handles POST requests to create a new user
-# Requires an object with keys: 'username', 'password', 'email', 'cityId'
+# Requires an object with keys: 'username', 'password', 'email', 'city'
 # If successful returns the userId with response status 201
 # In case of an error returns a response status 400 and a list with field names as keys,
 # and list of errors which occured on that field as values
@@ -262,6 +271,16 @@ def createUser(request):
         serializer.save()
         # Finding the new user to return its id
         user = User.objects.get(username=serializer.data['username'])
+        
+        # Adding default lists to new user profile
+        for userList in defaultUserLists:
+            args = {}
+            args['name'] = userList['name']
+            args['description'] = userList['description']
+            args['category'] = Category.objects.get(name=userList['category'])
+            args['user_id'] = user.id
+            List.objects.create(**args)
+
         return Response({'userId':user.id}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
