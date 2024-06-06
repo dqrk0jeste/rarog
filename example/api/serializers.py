@@ -16,7 +16,15 @@ class RatingSerializer(ModelSerializer):
 class CategorySerializer(ModelSerializer):
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ['name']
+
+
+class ListSerializer(ModelSerializer):
+    category = CategorySerializer()
+    class Meta:
+        model = List
+        fields = ['id', 'name', 'category', 'description', 'imageId']
+
 
 class MediaSerializer(ModelSerializer):
     class Meta:

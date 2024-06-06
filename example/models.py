@@ -112,3 +112,22 @@ class Rating(models.Model):
     
     def __str__(self):
         return str(self.id)
+
+# User list of medias model
+class List(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    imageId = models.UUIDField(null=True)
+
+# List contains media relation model
+class List_contains_media(models.Model):
+    list = models.ForeignKey(List, on_delete=models.CASCADE)
+    media = models.ForeignKey(Media, on_delete=models.CASCADE)
+
+# Media user status model
+class Status(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    media = models.ForeignKey(Media, on_delete=models.CASCADE)
