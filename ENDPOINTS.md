@@ -7,14 +7,14 @@ Handles POST requests to get media status for a user.\
 Requires a JSON body
 ```sh
 {
-	"mediaId": String,
-	"userId": String
+    "mediaId": String,
+    "userId": String
 }
 ```
 Returns a JSON body
 ```sh
 {
-	"status": Boolean
+    "status": Boolean
 }
 ```
 In case of an error returns a response status 400.
@@ -24,8 +24,8 @@ Handles POST requests to change media status for a user.\
 Requires a JSON body
 ```sh
 {
-	"mediaId": String,
-	"userId": String,
+    "mediaId": String,
+    "userId": String,
     "status": Boolean
 }
 ```
@@ -37,7 +37,7 @@ Image file (JPEG or PNG) is optional and should be labeled 'image'.\
 Required body:
 ```sh
 {
-	"userId": String,
+    "userId": String,
     "category": String,
     "name": String,
     "description": String
@@ -89,7 +89,7 @@ Handles POST requests to add a media to list with `<id>` id.\
 Requires a JSON body
 ```sh
 {
-	"mediaId": String,
+    "mediaId": String,
 }
 ```
 In case of an error returns a response status 400.
@@ -99,7 +99,7 @@ Handles DELETE requests to remove a media from list with `<id>` id.\
 Requires a JSON body
 ```sh
 {
-	"mediaId": String,
+    "mediaId": String,
 }
 ```
 In case of an error returns a response status 400.
@@ -134,16 +134,16 @@ Handles POST requests to rate a media.\
 Requires a JSON body
 ```sh
 {
-	"mediaId": String,
-	"userId": String,
-	"comment": String,
+    "mediaId": String,
+    "userId": String,
+    "comment": String,
     "rating": Integer
 }
 ```
 If successful returns a JSON body with response status 201.
 ```sh
 {
-	"id": String
+    "id": String
 }
 ```
 In case of an error returns a response status 400.
@@ -155,30 +155,30 @@ Required body:\
 Movies:
 ```sh
 {
-	"name": String,
-	"releaseYear": Integer,
-	"genre": String,
-	"director": String,
-	"cast": String,
-	"length": Integer,
-	"description": String,
-	"screenwriters": String
+    "name": String,
+    "releaseYear": Integer,
+    "genre": String,
+    "director": String,
+    "cast": String,
+    "length": Integer,
+    "description": String,
+    "screenwriters": String
 }
 ```
 Books:
 ```sh
 {
-	"name": String,
-	"releaseYear": Integer,
-	"genre": String,
-	"authors": String,
-	"description": String
+    "name": String,
+    "releaseYear": Integer,
+    "genre": String,
+    "authors": String,
+    "description": String
 }
 ```
 If successful returns a JSON body with response status 201.
 ```sh
 {
-	"id": String
+    "id": String
 }
 ```
 In case of an error returns a response status 400.
