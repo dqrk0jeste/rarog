@@ -16,7 +16,15 @@ class RatingSerializer(ModelSerializer):
 class CategorySerializer(ModelSerializer):
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ['name']
+
+
+class ListSerializer(ModelSerializer):
+    category = CategorySerializer()
+    class Meta:
+        model = List
+        fields = ['id', 'name', 'category', 'description', 'imageId']
+
 
 class MediaSerializer(ModelSerializer):
     class Meta:
@@ -55,7 +63,7 @@ class CitySerializer(ModelSerializer):
 class NewUserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'password', 'email', 'cityId']
+        fields = ['username', 'password', 'email', 'city']
     
     # Modified create method which hashes the password
     def create(self, data):

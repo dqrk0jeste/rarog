@@ -9,6 +9,138 @@ from azure.storage.blob import BlobServiceClient
 from django.core.paginator import Paginator
 from django.db.models import Q
 
+defaultUserLists = [
+    {
+        "category": "movie",
+        "name": "Favourite Movies",
+        "description": "My favourite movies."
+    },
+    {
+        "category": "movie",
+        "name": "Watch Later",
+        "description": "Movies I will watch later."
+    },
+]
+
+@api_view(['POST'])
+def getStatus(request):
+    try:
+        # tries to find status in database, if successful returns true
+        try:
+            q = Status.objects.get(user=request.data['userId'], media=request.data['mediaId'])
+            mediastatus = True
+        except Status.DoesNotExist:
+            mediastatus = False
+        return Response({'status':mediastatus}, status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def setStatus(request):
+    try:
+        # check if requested status parameter is valid
+        requestedStatus = request.data['status'].capitalize()
+        if requestedStatus not in ['True', 'False']:
+            raise Exception
+        requestedStatus = eval(requestedStatus)
+        # finds status
+        try:
+            q = Status.objects.get(user=request.data['userId'], media=request.data['mediaId'])
+            mediastatus = True
+        except Status.DoesNotExist:
+            mediastatus = False
+        # if status doesn't match, changes it
+        if mediastatus != requestedStatus:
+            if mediastatus:
+                q.delete()
+            else:
+                Status.objects.create(user_id=request.data['userId'], media_id=request.data['mediaId'])
+        return Response(status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def createList(request):
+    try:
+        listArgs = {}
+        listArgs['category'] = Category.objects.get(name=request.data['category'])
+        listArgs['user_id'] = request.data['userId']
+        listArgs['name'] = request.data['name']
+        listArgs['description'] = request.data['description']
+        # image handling
+        blobId = None
+        if len(request.FILES) > 0:
+            file = request.FILES['image']
+            blobId = str(uuid.uuid4())
+            bsclient = BlobServiceClient.from_connection_string(os.environ.get('AZURE_STORAGE_CONNECTION_STRING'))
+            blobClient = bsclient.get_blob_client(container='images', blob=blobId+".jpg")
+            blobClient.upload_blob(file.read())
+        listArgs['imageId'] = blobId
+
+        newList = List.objects.create(**listArgs)
+        return Response({"id":newList.id}, status=status.HTTP_201_CREATED)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'POST', 'DELETE'])
+def list(request, listId):
+    try:
+        # add media to list
+        if request.method == 'POST':
+            # check if media already in list
+            try:
+                q = List_contains_media.objects.get(list=listId, media=request.data['mediaId'])
+            except List_contains_media.DoesNotExist:
+                new = List_contains_media.objects.create(list_id=listId, media_id=request.data['mediaId'])
+            return Response(status=status.HTTP_200_OK)
+        
+        # remove media from list
+        if request.method == 'DELETE':
+            q = List_contains_media.objects.get(list=listId, media=request.data['mediaId'])
+            q.delete()
+            return Response(status=status.HTTP_200_OK)
+
+        # get medias from list
+        if request.method == 'GET':
+            category = List.objects.get(pk=listId).category.name
+            specMediaClass, serializer, authorField = handleMultipleCategories(category, short=True, author=True)
+
+            # search
+            searchString = request.GET.get('search', '').strip()
+            medias = specMediaClass.objects.filter(media__list_contains_media__list__id=listId)
+            if searchString != '':
+                medias = medias.filter(Q(media__name__icontains=searchString) | Q(media__genre__icontains=searchString) | Q(**{authorField+'__icontains':searchString}))
+            medias = medias.order_by('media__name')
+
+            # pagination
+            pageSize = request.GET.get('page-size', '')
+            pageNumber = int(request.GET.get('page-number', '1'))
+            if(pageSize != ''):
+                paginator = Paginator(medias, per_page=int(pageSize))
+                medias = paginator.page(pageNumber)
+            
+            results = serializer(medias, many=True).data
+            return Response(results)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def getUser(request, userId):
+    try:
+        results = {}
+        user = User.objects.get(pk=userId)
+        results['username'] = user.username
+        results['city'] = CitySerializer(user.city).data
+        userLists = List.objects.filter(user__id=userId)
+        userLists = ListSerializer(userLists, many=True)
+        results['lists'] = userLists.data
+        return Response(results, status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 # Handles POST requests to rate a media
 # Requires an object with keys: 'mediaId', 'userId', 'comment', 'rating'
@@ -17,6 +149,9 @@ from django.db.models import Q
 @api_view(['POST'])
 def createRating(request):
     try:
+        # check if rating is valid
+        if(request.data['rating'] > 5 or request.data['rating'] < 1):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         newRating = Rating.objects.create(media_id=request.data['mediaId'], user_id=request.data['userId'], comment=request.data['comment'], rating=request.data['rating'])
         return Response({'id': newRating.id}, status=status.HTTP_201_CREATED)
     except:
@@ -118,7 +253,6 @@ def media(request, category):
    
 
 # Handles GET requests to retrieve a list of cities
-# Returns a list of cities with keys: 'cityId', 'name'
 @api_view(['GET'])
 def getCities(request):
     queryset = City.objects.all()
@@ -126,7 +260,7 @@ def getCities(request):
     return Response(serializer.data)
 
 # Handles POST requests to create a new user
-# Requires an object with keys: 'username', 'password', 'email', 'cityId'
+# Requires an object with keys: 'username', 'password', 'email', 'city'
 # If successful returns the userId with response status 201
 # In case of an error returns a response status 400 and a list with field names as keys,
 # and list of errors which occured on that field as values
@@ -137,6 +271,16 @@ def createUser(request):
         serializer.save()
         # Finding the new user to return its id
         user = User.objects.get(username=serializer.data['username'])
+        
+        # Adding default lists to new user profile
+        for userList in defaultUserLists:
+            args = {}
+            args['name'] = userList['name']
+            args['description'] = userList['description']
+            args['category'] = Category.objects.get(name=userList['category'])
+            args['user_id'] = user.id
+            List.objects.create(**args)
+
         return Response({'userId':user.id}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
